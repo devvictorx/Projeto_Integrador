@@ -1,0 +1,105 @@
+/* Reset de estilos para garantir consistência */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Estilo para o corpo da página */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f2f2f2;
+}
+
+/* Estilo para o cabeçalho */
+header {
+    background-color: #333;
+    color: #fff;
+    padding: 10px;
+    text-align: center; /* Alinhar texto ao centro */
+}
+
+/* Estilo para a navegação */
+nav.menu {
+    display: flex;
+    justify-content: center; /* Centralizar os itens horizontalmente */
+}
+
+a {
+    color: #f2f2f2;
+    text-decoration: none;
+}
+
+nav.menu a {
+    margin-right: 20px; /* Adiciona margem direita aos itens do menu */
+}
+
+nav.menu a:last-child {
+    margin-right: 0; /* Remove margem direita do último item do menu */
+}
+
+nav.menu a:hover {
+    text-decoration: underline;
+}
+
+/* Estilo para o contêiner principal */
+.container {
+    max-width: 600px;
+    margin: 20px auto;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Estilo para o formulário */
+form {
+    display: grid;
+    gap: 10px;
+}
+
+/* Estilo para os rótulos */
+label {
+    font-weight: bold;
+}
+
+/* Estilo para os campos de entrada */
+input[type="text"],
+input[type="email"],
+input[type="tel"],
+input[type="date"],
+input[type="time"],
+select,
+textarea {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+/* Estilo para o botão de envio */
+input[type="submit"] {
+    background-color: #333;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+/* Estilo para o botão de envio ao passar o mouse sobre ele */
+input[type="submit"]:hover {
+    background-color: #555;
+}
+
+/* Estilo para mensagens de sucesso */
+p.sucesso {
+    color: green;
+    margin-top: 10px;
+}
+
+/* Estilo para mensagens de erro */
+p.erro {
+    color: red;
+    margin-top: 10px;
+}
