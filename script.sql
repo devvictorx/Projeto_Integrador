@@ -2,7 +2,7 @@ CREATE DATABASE celestial_barbearia;
 
 USE celestial_barbearia;
 
-CREATE TABLE IF NOT EXISTS agendamentos (
+CREATE TABLE agendamentos (
     id INT(11) NOT NULL AUTO_INCREMENT,
     nome VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL,
