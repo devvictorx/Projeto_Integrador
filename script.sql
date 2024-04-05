@@ -1,12 +1,18 @@
-CREATE TABLE `agendamentos` (
-  `id` int(11) NOT NULL,
-  `nome` varchar(255) NOT NULL,
-  `email` varchar(255) NOT NULL,
-  `telefone` varchar(20) NOT NULL,
-  `data` date NOT NULL,
-  `horario` time NOT NULL,
-  `servico` varchar(255) NOT NULL,
-  `barbeiro` varchar(255) NOT NULL,
-  `mensagem` text DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
-)
+CREATE DATABASE celestial_barbearia;
+
+USE celestial_barbearia;
+
+CREATE TABLE IF NOT EXISTS agendamentos (
+    id INT(11) NOT NULL AUTO_INCREMENT,
+    nome VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    telefone VARCHAR(20) NOT NULL,
+    data DATE NOT NULL,
+    horario TIME NOT NULL,
+    servico VARCHAR(255) NOT NULL,
+    barbeiro VARCHAR(255) NOT NULL,
+    mensagem TEXT,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id)
+);
+
