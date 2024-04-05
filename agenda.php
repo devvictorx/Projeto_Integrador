@@ -40,46 +40,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit'])) {
     $mensagem = $_POST['mensagem'];
     $barbeiro = $_POST['barbeiro'];
     
-    // Gerar um token único
-    $token = uniqid();
-
     if(empty($nome) || empty($email) || empty($telefone) || empty($data) || empty($horario) || empty($servico) || empty($barbeiro)) {
         $mensagemErro = "Por favor, preencha todos os campos obrigatórios.";
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $mensagemErro = "Formato de e-mail inválido.";
     } elseif (!preg_match("/^\([0-9]{2}\) [0-9]{4,5}-[0-9]{4}$/", $telefone)) {
         $mensagemErro = "Formato de telefone inválido. Use o formato (xx) xxxxx-xxxx.";
+    } elseif (in_array($horario, $horarios_agendados)) {
+        $mensagemErro = "Desculpe, este horário já está agendado. Por favor, selecione outro horário.";
     } else {
         // Iniciar a transação
         mysqli_begin_transaction($link);
+        
+        // Inserir os dados na tabela dentro da transação
+        $sql = "INSERT INTO agendamentos (nome, email, telefone, data, horario, servico, mensagem, barbeiro)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        $stmt = mysqli_prepare($link, $sql);
+        mysqli_stmt_bind_param($stmt, "ssssssss", $nome, $email, $telefone, $data, $horario, $servico, $mensagem, $barbeiro);
+        $result = mysqli_stmt_execute($stmt);
 
-        // Verificar se o horário está disponível dentro da transação
-        $sql_check_horario = "SELECT COUNT(*) AS total FROM agendamentos WHERE data = ? AND horario = ?";
-        $stmt_check_horario = mysqli_prepare($link, $sql_check_horario);
-        mysqli_stmt_bind_param($stmt_check_horario, "ss", $data, $horario);
-        mysqli_stmt_execute($stmt_check_horario);
-        mysqli_stmt_bind_result($stmt_check_horario, $total);
-        mysqli_stmt_fetch($stmt_check_horario);
-        mysqli_stmt_close($stmt_check_horario); // Fechar o statement após buscar o resultado
-
-        if ($total > 0) {
-            mysqli_rollback($link); // Rollback em caso de horário indisponível
-            $mensagemErro = "Desculpe, este horário já está agendado. Por favor, selecione outro horário.";
+        if ($result === TRUE) {
+            mysqli_commit($link); // Commit se o agendamento for bem-sucedido
+            $mensagemSucesso = "Agendamento realizado com sucesso!";
         } else {
-            // Inserir os dados na tabela dentro da transação
-            $sql = "INSERT INTO agendamentos (nome, email, telefone, data, horario, servico, mensagem, barbeiro, token)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-            $stmt = mysqli_prepare($link, $sql);
-            mysqli_stmt_bind_param($stmt, "sssssssss", $nome, $email, $telefone, $data, $horario, $servico, $mensagem, $barbeiro, $token);
-            $result = mysqli_stmt_execute($stmt);
-
-            if ($result === TRUE) {
-                mysqli_commit($link); // Commit se o agendamento for bem-sucedido
-                $mensagemSucesso = "Agendamento realizado com sucesso!";
-            } else {
-                mysqli_rollback($link); // Rollback em caso de erro no agendamento
-                $mensagemErro = "Erro ao agendar: " . mysqli_error($link);
-            }
+            mysqli_rollback($link); // Rollback em caso de erro no agendamento
+            $mensagemErro = "Erro ao agendar: " . mysqli_error($link);
         }
     }
 }
@@ -89,20 +74,34 @@ mysqli_close($link);
 
 
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="agenda.css">
     <title>Agenda</title>
+    <script>
+        window.addEventListener('DOMContentLoaded', (event) => {
+            // Bloquear os horários já agendados
+            const horariosAgendados = <?php echo json_encode($horarios_agendados); ?>;
+            const horarioSelect = document.getElementById('horario');
+            horarioSelect.addEventListener('change', () => {
+                const selectedHorario = horarioSelect.value;
+                if (horariosAgendados.includes(selectedHorario)) {
+                    alert('Desculpe, este horário já está agendado. Por favor, selecione outro horário.');
+                    horarioSelect.value = '';
+                }
+            });
+        });
+    </script>
 </head>
 <body>
 <header>
     <nav class="menu">
         <a href="home.html">Início</a>
         <a href="servicos.html">Serviços</a>
-        <a href="agenda.php">Agenda</a>
         <a href="equipe.html">Equipe</a>
+        <a href="#"></a>
         </nav>
 </header>
 <div class="container">
@@ -141,16 +140,17 @@ mysqli_close($link);
             <option value="Penteado">Penteado</option>
             <option value="Outros">Outros</option>
         </select>
-        <label for="barbeiro">Barbeiro:</label>
-        <select id="barbeiro" name="barbeiro" required>
+            <label for="barbeiro">Barbeiro:</label>
+            <select id="barbeiro" name="barbeiro" required>
             <option value="">Selecione um barbeiro</option>
             <option value="Eduard">Eduard</option>
             <option value="Taylor">Taylor</option>
         </select>
-        <label for="mensagem">Mensagem Adicional:</label>
-        <textarea id="mensagem" name="mensagem" rows="4"></textarea>
-        <input type="submit" name="submit" value="Agendar">
-    </form>
+            <label for="mensagem">Mensagem Adicional:</label>
+            <textarea id="mensagem" name="mensagem" rows="4"></textarea>
+            <input type="submit" name="submit" value="Agendar">
+</form>
+
 </div>
 </body>
 </html>
